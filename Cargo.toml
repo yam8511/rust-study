@@ -3,4 +3,9 @@ name = "ruru"
 version = "0.1.0"
 edition = "2021"
 
+default-run = "ruru"
+
 [dependencies]
+tokio = { version = "1", features = ["full"] }
+chrono = "0.4"
+signal-hook = "0.3.17"
