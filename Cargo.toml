@@ -8,4 +8,5 @@ default-run = "ruru"
 [dependencies]
 tokio = { version = "1", features = ["full"] }
 chrono = "0.4"
-signal-hook = "0.3.17"
+log = "0.4"
+env_logger = "0.11"
