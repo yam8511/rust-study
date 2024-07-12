@@ -49,6 +49,7 @@ fn main() {
     let mut temp_plate = None;
     let mut temp_score = None;
     let mut temp_center = None;
+    let mut temp_bbox = None;
 
     // The `Reader` does not implement `Iterator` because it outputs borrowed data (`Cow`s)
     loop {
@@ -64,6 +65,43 @@ fn main() {
             // exits the loop when reaching end of file
             Ok(Event::Eof) => break,
             Ok(Event::Empty(e)) => match e.name().as_ref() {
+                b"tt:BoundingBox" => {
+                    let mut left = None;
+                    let mut top = None;
+                    let mut right = None;
+                    let mut bottom = None;
+                    e.attributes().for_each(|attr| {
+                        if let Ok(attr) = attr {
+                            println!("attr = {:?}", attr);
+                            match attr.key {
+                                QName(b"left") => left = Some(attr.value.to_owned().to_vec()),
+                                QName(b"top") => top = Some(attr.value.to_owned().to_vec()),
+                                QName(b"right") => right = Some(attr.value.to_owned().to_vec()),
+                                QName(b"bottom") => bottom = Some(attr.value.to_owned().to_vec()),
+                                _ => (),
+                            }
+                        }
+                    });
+                    if let (Some(left), Some(top), Some(right), Some(bottom)) =
+                        (left, top, right, bottom)
+                    {
+                        if let (Ok(left), Ok(top), Ok(right), Ok(bottom)) = (
+                            String::from_utf8(left),
+                            String::from_utf8(top),
+                            String::from_utf8(right),
+                            String::from_utf8(bottom),
+                        ) {
+                            if let (Ok(left), Ok(top), Ok(right), Ok(bottom)) = (
+                                left.parse::<i32>(),
+                                top.parse::<i32>(),
+                                right.parse::<i32>(),
+                                bottom.parse::<i32>(),
+                            ) {
+                                temp_bbox = Some((left, top, right - left, bottom - top))
+                            }
+                        }
+                    }
+                }
                 b"tt:CenterOfGravity" => {
                     let mut x = None;
                     let mut y = None;
@@ -119,7 +157,9 @@ fn main() {
         // if we don't keep a borrow elsewhere, we can clear the buffer to keep memory usage low
         buf.clear();
     }
-    if let (Some(plate), Some(score), Some((x, y))) = (temp_plate, temp_score, temp_center) {
-        println!("Plate: {} {:.2} {:.2} {:.2}", plate, score, x, y);
+    if let (Some(plate), Some(score), Some((x, y)), Some((x1, y1, w, h))) =
+        (temp_plate, temp_score, temp_center, temp_bbox)
+    {
+        println!("Plate: {} {:.2} center = ({x:.2} {y:.2}), bbox = ({x1:.2}, {y1:.2}) width = {w:.2} height = {h:.2}", plate, score);
     }
 }

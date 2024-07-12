@@ -12,6 +12,6 @@ log = "0.4"
 env_logger = "0.11"
 show-image = { version = "0.14.0", features = ["image"] }
 image = "0.25.1"
-quick-xml = "0.32.0"
+quick-xml = "0.35.0"
 ndarray = "0.15"
-video-rs = { version = "0.8", features = ["ndarray"] }
+mac_address = "1.1"
