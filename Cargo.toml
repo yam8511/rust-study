@@ -15,3 +15,10 @@ image = "0.25.1"
 quick-xml = "0.35.0"
 ndarray = "0.15"
 mac_address = "1.1"
+tracing = "*"
+tracing-subscriber = { version = "*", features = [
+    "json",
+    "env-filter",
+    "registry",
+] }
+tracing-appender = "*"
